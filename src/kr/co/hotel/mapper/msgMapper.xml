@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper	namespace="msg">
+	<insert id="add" parameterType="msgvo">
+		insert into msg values(msg_seq.nextVal,#{sender},#{receiver},#{sub},#{cont},sysdate)
+	</insert>
+<select id="frtmsg" resultType="msgvo" parameterType="String">
+	select * from msg m,admin a where upper(m.receiver)=upper(a.aid) and upper(m.receiver)=upper(#{aid}) order by sdate desc
+</select>
+
+<select id="msgdetail" resultType="msgvo" parameterType="int">
+	select * from msg where msgnum=#{msgnum}
+</select>
+</mapper>

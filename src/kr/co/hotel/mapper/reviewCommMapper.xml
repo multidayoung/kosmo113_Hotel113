@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper	namespace="rc">
+
+	<insert id="add" parameterType="rcvo">
+		insert into reviewcomm values(#{renum}, #{anum}, #{rccontent}, sysdate)
+	</insert>
+	
+	<select id="chk" parameterType="int" resultType="int">
+		select count(*) from reviewcomm where renum=#{renum}
+	</select>
+	
+	<select id="detail" parameterType="int" resultType="rcvo">
+ 		select * from reviewcomm where renum=#{renum}
+ 	</select>
+	
+	<update id="update" parameterType="rcvo">
+	 	update reviewcomm set rccontent=#{rccontent}, rcdate=sysdate where renum=#{renum} and anum=#{anum}
+	</update>
+	
+	<delete id="del" parameterType="int">
+ 		delete from reviewcomm where renum=#{renum}
+	</delete>
+	
+		
+	<!-- 리스트1 -->
+	<select id="list" resultType="rcvo">
+		select * from reviewcomm order by 1 desc
+	</select>
+	
+	<!-- 리스트2 : 게시글에 답글 같이 보이게 -->
+	<resultMap type="revo" id="reviewResult">
+		<id property="renum" column="renum" javaType="int"/>
+		<result property="rvnum" column="rvnum" javaType="int"/>
+		<result property="retitle" column="retitle"/>
+		<result property="rewriter" column="rewriter"/>
+		<result property="recontent" column="recontent"/>
+		<result property="redate" column="redate"/>
+		<association property="comm" column="renum" javaType="rcvo">
+			<result property="rccontent" column="rccontent"/>
+			<result property="rcdate" column="rcdate"/>
+		</association>
+	</resultMap>
+	<select id="rclist" resultMap="reviewResult">
+			select r.renum, r.rvnum, r.retitle, r.rewriter, r.recontent, r.redate, rc.rccontent, rc.rcdate 
+			from review r, reviewcomm rc where r.renum=rc.renum
+	</select>
+ 	
+ 	
+ 	<!-- 상세페이지2 : 게시글에 답글 같이 보이게 -->
+ 	<resultMap type="revo" id="rcResult">
+ 		<id property="renum" column="renum" javaType="int"/>
+		<result property="rvnum" column="rvnum" javaType="int"/>
+		<result property="retitle" column="retitle"/>
+		<result property="rewriter" column="rewriter"/>
+		<result property="recontent" column="recontent"/>
+		<result property="redate" column="redate"/>
+		<association property="comm" javaType="rcvo">
+			<result property="rccontent" column="rccontent"/>
+			<result property="rcdate" column="rcdate"/>
+			<association property="admin" javaType="avo">
+				<result property="aname" column="aname"/>
+			</association>
+		</association>
+	</resultMap>
+ 	<select id="rcdetail" resultMap="rcResult">
+ 		select r.renum, r.rvnum, r.retitle, r.rewriter, r.recontent, r.redate, 
+		nvl(s.aname,'-') as aname, 
+		nvl(s.rccontent, '아직 답변이 작성되지 않았습니다.') as rccontent, 
+		nvl(s.rcdate,TO_DATE('1000-01-01','yyyy-MM-dd')) as rcdate
+		from
+		(select a.aname, rc.renum, rc.rccontent, rc.rcdate from reviewcomm rc, admin a where rc.anum=a.anum) s, review r
+		where r.renum=s.renum(+) and r.renum=#{renum}
+	</select>
+ 	
+ 	<!-- 리스트3 : 게시글에 답글 같이 보이게 -->
+	<resultMap type="revo" id="rcaResult">
+ 		<id property="renum" column="renum" javaType="int"/>
+		<result property="rvnum" column="rvnum" javaType="int"/>
+		<result property="retitle" column="retitle"/>
+		<result property="rewriter" column="rewriter"/>
+		<result property="redate" column="redate"/>
+		<association property="comm" javaType="rcvo">
+			<result property="rccontent" column="rccontent"/>
+			<result property="rcdate" column="rcdate"/>
+			<association property="admin" javaType="avo">
+				<result property="aname" column="aname"/>
+			</association>
+		</association>
+	</resultMap>
+	<select id="rcalist" resultMap="rcaResult">
+			select r.renum, r.rvnum, r.retitle, r.rewriter, r.redate, 
+			nvl(s.rccontent, '아직 답변이 작성되지 않았습니다.') as rccontent, 
+			nvl(s.rcdate,TO_DATE('1000-01-01','yyyy-MM-dd')) as rcdate, 
+			nvl(s.aname,'-') as aname
+			from
+			(select a.aname, rc.renum, rc.rccontent, rc.rcdate 
+			from reviewcomm rc, admin a where rc.anum=a.anum) s, review r
+			where r.renum=s.renum(+) order by r.redate desc
+	</select>
+ 	
+ 	
+</mapper>

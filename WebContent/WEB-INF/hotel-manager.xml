@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+<!-- DispactherServlet이 찾아가는 xml의 이름은 [xml에 설정한 서블릿 이름]-servlet.xml이 기본값이다. -->
+<!-- 이 기본값은 web.xml에서 init-param으로 변경할 수 있다. -->
+<aop:aspectj-autoproxy/>
+<!-- 베이스 패키지를 리버스존으로 등록하는 것을 습관화한다. -->
+<context:component-scan base-package="kr.co.hotel.manager"/>
+<!-- @Controller 관리 -->
+<mvc:annotation-driven/>
+<!-- 인자의 경로 지정 -->
+<mvc:resources location="/resources/" mapping="/resources/**"/>
+
+
+
+<!-- 
+	View의 타입 => viewResolver 설정
+	/WEB-INF/views/[hello].jsp
+	prefix : 앞에 붙임
+	suffix : 뒤에 붙임
+ -->
+<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+<property name="prefix" value="/WEB-INF/views/manager/"/>
+<property name="suffix" value=".jsp"/>
+<property name="order" value="1"/>
+</bean>
+
+</beans>

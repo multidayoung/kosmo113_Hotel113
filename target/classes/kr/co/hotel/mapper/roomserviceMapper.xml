@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="roomservice">
+<resultMap type="rservicevo" id="rsvoD">
+	<id property="servicenum" column="servicenum"/>
+	<result property="rvnum" column="rvnum"/>
+	<result property="service" column="service"/>
+	<result property="servicedate" column="servicedate"/>
+	<result property="servicestate" column="servicestate"/>
+	<association property="reserve" javaType="resvo">
+		<id property="rvnum" column="rvnum" javaType="int"/>
+		<result property="rnum" column="rnum" javaType="int"/>
+
+		<result property="rvstart" column="rvstart"/>
+		<result property="rvend" column="rvend"/>
+		<result property="rvstate" column="rvstate" javaType="int"/>
+	</association>
+	<collection property="worklist" javaType="java.util.List" ofType="wvo">
+		<result property="servicenum" column="servicenum"/>
+		<result property="aid" column="aid"/>
+		<result property="wstate" column="wstate"/>
+		<result property="wdate" column="wdate"/>
+		<association property="admin" javaType="avo">
+			<id property="anum" column="anum"/>
+			<result property="aid" column="aid"/>
+			<result property="apwd" column="apwd"/>
+			<result property="aname" column="aname"/>
+			<result property="ajob" column="ajob"/>
+			<result property="astate" column="astate"/>
+			<result property="adate" column="adate"/>
+		</association>  
+	</collection>
+</resultMap>
+<resultMap type="wvo" id="wvoV">
+		<result property="servicenum" column="servicenum"/>
+		<result property="aid" column="aid"/>
+		<result property="wstate" column="wstate"/>
+		<result property="wdate" column="wdate"/>
+		<association property="admin" javaType="avo">
+			<id property="anum" column="anum"/>
+			<result property="aid" column="aid"/>
+			<result property="apwd" column="apwd"/>
+			<result property="aname" column="aname"/>
+			<result property="ajob" column="ajob"/>
+			<result property="astate" column="astate"/>
+			<result property="adate" column="adate"/>
+		</association> 
+</resultMap>
+
+<insert id="add" parameterType="rservicevo">
+	insert into roomservice values(roomservice_seq.nextVal,#{rvnum},#{service},1,
+	to_date(#{servicedate},'yyyy-mm-dd hh24:mi:ss'))
+</insert>
+
+
+<select id="schk" parameterType="rservicevo" resultType="int">
+	select count(*) from roomservice where servicedate=to_date(#{servicedate},'yyyy-mm-dd hh24:mi:ss') and rvnum=#{rvnum}
+</select>
+	
+<select id="reserve" resultType="resvo" parameterType="int">
+	select * from reserve where rvnum=#{rvnum}
+</select>
+
+<select id="list" resultMap="rsvoD" parameterType="map" >
+
+	 select * from (
+    select rownum r_num, a.* from (
+     select * from roomservice order by servicestate asc, servicenum desc
+    ) a 
+ )a,worklist w,admin d where r_num BETWEEN #{begin} and #{end} and a.servicenum=w.servicenum(+)
+ and w.aid=d.aid(+)
+</select>
+
+
+
+<select id="cnt" resultType="int">
+	select count(*) from roomservice
+</select>
+
+<select id="detail" resultMap="rsvoD" parameterType="int">
+	select * from reserve r, roomservice rs, worklist w, admin a where r.rvnum = rs.rvnum and rs.servicenum = w.servicenum(+)
+	and w.aid=a.aid(+) and
+	rs.servicenum=#{num} 
+</select>
+
+<update id="complete" parameterType="int" >
+	update roomservice set servicestate=4 where servicenum=#{num}
+</update>
+
+
+</mapper>

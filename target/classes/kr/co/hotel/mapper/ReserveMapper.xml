@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper	namespace="reserve">
+	<resultMap type="resvo" id="resview">
+		<id property="rvnum" column="rvnum" javaType="int"/>
+		<result property="rnum" column="rnum" javaType="int"/>
+		<result property="rvstart" column="rvstart"/>
+		<result property="rvend" column="rvend"/>
+		<result property="rvstate" column="rvstate" javaType="int"/>
+		<result property="rvprice" column="rvprice" javaType="int"/>
+		<association property="roomvo" column="rnum" javaType="rvo">			
+			<result property="rname" column="rname"/>
+			<result property="rmax" column="rmax" javaType="int"/>		
+		</association>
+	</resultMap>
+	<select id="reservelist" parameterType="reslvo" resultMap="resview">
+		select * from (
+			select ROWNUM r_num, re.rvnum, re.rnum, re.rvstart, 
+			re.rvend, re.rvstate, re.rvprice, ro.rname, ro.rmax from(
+			select * from reserve where mid=#{mid} order by rvnum desc
+			) re, (select * from room) ro where re.rnum = ro.rnum
+			) where r_num BETWEEN #{begin} and #{end}	
+	</select>
+	<select id="reservedetail" parameterType="redpvo" resultMap="resview">
+		select re.rvnum, re.rnum, re.rvstart, 
+			re.rvend, re.rvstate, re.rvprice, ro.rname, ro.rmax 
+			from reserve re, room ro 
+			where re.rnum = ro.rnum and mid=#{mid} and rvnum=#{rvnum}
+	</select>
+	<select id="reservecnt" parameterType="reslvo" resultType="int">
+		select count(*) from reserve where mid=#{mid}	
+	</select>
+	<insert id="addreserve" parameterType="resvo">
+		insert into reserve values(reserve_seq.nextVal, #{rnum}, #{mid}, #{rvstart}, #{rvend}, 0, #{rvprice})
+	</insert>
+	<resultMap type="cnvo" id="cnvoview">
+		<result property="start" column="rvstart"/>
+		<result property="end" column="rvend"/>
+	</resultMap>
+	<select id="cannotreservedays" parameterType="cnpvo" resultMap="cnvoview">
+		select rvstart, rvend from reserve 
+		<![CDATA[
+		where rvend > #{today} and rnum = #{rnum} and rvstate in(0,3)
+		]]>
+	</select>
+	<update id="rvstatechange" parameterType="String">
+		update reserve set rvstate=2 
+		<![CDATA[
+		where rvend < #{today} and rvstate in(0,3)
+		]]>
+	</update>
+	<update id="rvstatechange2" parameterType="String">
+		update reserve set rvstate=3 
+		<![CDATA[
+		where rvend >= #{today} and rvstart <= #{today} and rvstate = 0
+		]]>
+	</update>
+	<update id="reservecancel" parameterType="resvo">
+		update reserve set rvstate=1 where rvnum=#{rvnum}
+	</update>
+	
+	<!-- 예약리스트 -->
+	<select id="adminreservelist" parameterType="map" resultType="resvo">
+		select * from (
+			select ROWNUM r_num, re.* from(
+			select * from reserve order by rvnum desc
+			) re 
+			) where r_num BETWEEN #{begin} and #{end}
+	</select>
+	<select id="adminreservecnt" resultType="int">
+		select count(*) from reserve	
+	</select>
+	
+</mapper>

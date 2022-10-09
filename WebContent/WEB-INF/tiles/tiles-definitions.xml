@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<definition name="defaultTemplate" template="/WEB-INF/template/default/template.jsp">
+		<put-attribute name="header" value=""/>
+		<put-attribute name="body" value=""/>
+		<put-attribute name="carousel" value="/WEB-INF/template/default/carousel.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/template/default/footer.jsp"/>
+	</definition>
+		<definition name="memberTemplate" template="/WEB-INF/template/member/template.jsp">
+		<put-attribute name="header" value=""/>
+		<put-attribute name="body" value=""/>
+		<put-attribute name="carousel" value="/WEB-INF/template/member/carousel.jsp"/>
+		<put-attribute name="footer" value="/WEB-INF/template/member/footer.jsp"/>
+	</definition>
+	<definition name="manager/*/*" extends="defaultTemplate">
+	<!-- {1} and {2} means * form name="*/*" -->
+		<put-attribute name="body" value="/WEB-INF/views/manager/{1}/{2}.jsp"/>
+		<put-attribute name="header" value="/WEB-INF/template/default/header.jsp"/>
+	</definition>
+		<definition  name="member/*/*" extends="memberTemplate">
+	<!-- {1} and {2} means * form name="*/*" -->
+		<put-attribute name="body" value="/WEB-INF/views/member/{1}/{2}.jsp"/>
+		<put-attribute name="header" value="/WEB-INF/template/member/header2.jsp"/>
+	</definition>
+</tiles-definitions>

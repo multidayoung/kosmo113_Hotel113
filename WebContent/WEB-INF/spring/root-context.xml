@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+<context:annotation-config/>
+
+<!-- 여기는 여러 개의 디스패처서블릿들이 공통으로 사용할 공통빈, 공통 기능들을 넣어놓는 것이다. -->
+<!-- 만약 Hibernate도 사용한다고 하면, 
+	여기는 dataSource만 가져오지만, 
+	우리는 MyBatis만 사용하므로, 
+	MyBatis 설정도 공통에 설정하는 것이다.
+-->
+
+<!-- Datasource 설정 및 MyBatis 설정 : Datasource 설정은 MyBatis만을 위해 사용하는 것이 아니기 때문에 따로 설정한다.-->
+<!-- Datasource : JNDI -->
+<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+<property name="jndiName" value="java:comp/env/jdbc/myora"/>
+</bean>
+<!-- 트랜젝션 처리를 위한 설정 -->
+<!-- 스프링에서 트랜젝션 처리란? 스프링 AOP의 주요 사용처 중 하나가 트랜젝션이다. 즉, AOP의 관점으로 이해하면 좋을 것이다. -->
+<!-- DataSource에만 관여하며, 마이바티스 같은 프로그램에는 관여하지 않는다. -->
+<bean id="tm" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+<property name="dataSource" ref="dataSource"/>
+</bean>
+<!-- 이렇게 설정하면, 트랜젝션을 AOP적으로 설정할 수 있다. -->
+<tx:annotation-driven transaction-manager="tm"/>
+<!-- Tiles Configuration start -->
+<!-- 타일즈를 먼저 붙이고 나서 viewResolver를 실행시킴. 이게 0순위 -->
+
+<bean id="tilesViewResolver" 
+class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+<property name="viewClass" 
+ value="org.springframework.web.servlet.view.tiles3.TilesView"/>
+<property name="order" value="0"/> 
+</bean>
+<bean id="tilesConfigurer"
+class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+<property name="definitions">
+<list>
+	<value>/WEB-INF/tiles/tiles-definitions.xml</value>
+</list>
+</property>
+</bean>
+
+
+<!-- MyBatis 설정 : SqlSessionFactoryBean을 설정한다. -->
+<!-- 
+	아래의 코드를 대신한다. 
+	<dataSource type="JNDI">
+		<property name="data_source" value="java:comp/env/jdbc/myora"/>
+	</dataSource>
+
+	Reader reader = Resources.getResourceAsReader("config/config.xml");
+	factory = new SqlSessionFactoryBuilder().build(reader);
+ -->
+ <!-- 
+ 	classpath : 경로에 하나의 파일만 검색
+ 	classpath* : 경로의 와일드카드로 설정된 모든 파일 검색
+  -->
+<bean id="factorybean" class="org.mybatis.spring.SqlSessionFactoryBean">
+<property name="dataSource" ref="dataSource"/>
+<property name="configLocation" value="classpath:kr/co/hotel/config/config.xml"/>
+<property name="mapperLocations" value="classpath*:kr/co/hotel/mapper/*.xml"/>
+</bean>
+<!-- 내가 사용하려는 OpenSession, selectOne, selectList, insert, delete 같은 객체를 사용하기 위해 factoryBean을 ref로 생성자에 주입한다. -->
+<!-- Autowired로 사용함 -->
+<bean id="ss" class="org.mybatis.spring.SqlSessionTemplate">
+<constructor-arg ref="factorybean"/>
+</bean>
+<!-- 
+	 fileupload CommonsMultipartResolver 추가해야 한다.
+	 common-fileupload.jar
+-->
+<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+
+</beans>

@@ -1,0 +1,10 @@
+@charset "EUC-KR";
+
+header {margin:0 0 80px;}
+header nav .navbar-brand {font-weight:bold;}
+
+article .marketing {text-align:center;}
+
+footer {background:#000; color:#fff; padding:30px 0 20px; margin:60px 0 0; font-weight:300;}
+footer a {color:#fff;}
+footer a:hover {color:#fff; font-weight:bold;}

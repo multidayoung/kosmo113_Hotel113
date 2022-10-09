@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="click">
+	<!-- 클릭AOP -->
+	<insert id="click" parameterType="cvo">
+		insert into click values(click_seq.nextVal, #{rnum}, #{mid}, #{age}, #{cnt}, sysdate)
+	</insert>
+	
+	<!-- 나이 계산 -->
+	<select id="age" parameterType="String" resultType="int">
+		select (to_char(sysdate,'yyyy')-SUBSTR(mbirth,1,4)) mbirth from member where mid=#{mid}
+	</select>
+
+	<!-- 사람들이 관심 많은 객실 -->
+	<select id="list" resultType="cvo">
+		select rnum, count(cnt) as cnt from click group by rnum order by 2 desc
+	</select>
+</mapper>

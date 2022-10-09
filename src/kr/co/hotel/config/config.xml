@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!-- 여기서는 typeAlias만 관리한다. -->
+	<typeAliases>
+		<typeAlias type="kr.co.hotel.vo.RoomVO" alias="rvo"/> <!-- 객실 -->
+		<typeAlias type="kr.co.hotel.vo.AdminVO" alias="avo"/> <!-- 관리자 -->
+		<typeAlias type="kr.co.hotel.vo.MemberVO" alias="mvo"/> <!-- 회원 -->
+		<typeAlias type="kr.co.hotel.vo.SearchVO" alias="searchvo"/> <!-- 검색 -->
+		<typeAlias type="kr.co.hotel.vo.ReviewVO" alias="revo"/> <!-- 후기 -->
+		<typeAlias type="kr.co.hotel.vo.ReviewCommVO" alias="rcvo"/><!-- 답글 -->
+		<typeAlias type="kr.co.hotel.vo.ClickVO" alias="cvo"/><!-- 클릭 -->
+		<typeAlias type="kr.co.hotel.vo.MyLoginLoggerDTO" alias="lvo"/><!-- 로그 -->
+		
+		<typeAlias type="kr.co.hotel.vo.ReserveVO" alias="resvo"/>
+		<typeAlias type="kr.co.hotel.vo.ReserveListParaVO" alias="reslvo"/>	
+		<typeAlias type="kr.co.hotel.vo.CannotReserveVO" alias="cnvo"/>
+		<typeAlias type="kr.co.hotel.vo.CannotReserveParaVO" alias="cnpvo"/>
+		<typeAlias type="kr.co.hotel.vo.ReserveDetailParaVO" alias="redpvo"/>
+		
+		<typeAlias type="kr.co.hotel.vo.RoomServiceVO" alias="rservicevo"/>	
+		<typeAlias type="kr.co.hotel.vo.WorkList" alias="wvo"/>
+<typeAlias type="kr.co.hotel.vo.MsgVO" alias="msgvo"/>
+	</typeAliases>
+	<!-- 이 부분은 spring에게 위임해서 spring이 관리하겠다는 것이다.
+			왜? MyBatis만 사용하는 것이 아니라, 여러가지 기능으로 DB와 연동할 수 있으므로.
+			Mybatis가 직접적으로 DB와 연결된다면, 결합도가 높다고 볼 수 있다.
+			
+	<environments default="">
+		<environment id="">
+			<transactionManager type="JDBC"/>
+			<dataSource type="JNDI">
+				<property name="data_source" value="java:comp/env/jdbc/myora"/>
+			</dataSource>
+		</environment>
+	</environments>
+	<mappers>
+		<mapper resource="mapper/memberMapper.xml"/>
+	</mappers>
+	 -->
+</configuration>

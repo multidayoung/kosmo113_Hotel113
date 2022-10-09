@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="admin">
+
+	<!-- 로그인 -->
+	<select id="alist" resultType="avo">
+		select * from admin
+	</select>
+
+	<!-- 로그인 -->
+	   <select id="login" parameterType="avo" resultType="avo">
+	      select anum, aid, aname from admin where aid=#{aid} and apwd=#{apwd}
+	   </select>
+	   
+	<!-- 사원과 해당 사원 작업리스트를 위한 resultMap -->
+	<resultMap type="avo" id="avoV">
+	      <id property="anum" column="anum"/>
+	      <result property="aid" column="aid"/>
+	      <result property="apwd" column="apwd"/>
+	      <result property="aname" column="aname"/>
+	      <result property="ajob" column="ajob"/>
+	      <result property="astate" column="astate"/>
+	      <result property="adate" column="adate"/>
+	      <collection property="worklist" javaType="java.util.List" ofType="wvo">
+		      <result property="servicenum" column="servicenum"/>
+		      <result property="aid" column="aid"/>
+		      <result property="wstate" column="wstate"/>
+		      <result property="wdate" column="wdate"/>
+	      </collection>
+	</resultMap>
+	<!-- 사원리스트 -->
+	<select id="list" resultType="avo" parameterType="map" >
+	    select * from (
+	    select rownum r_num, a.* from (
+	     select * from admin order by astate asc
+	    ) a
+	 ) where r_num BETWEEN #{begin} and #{end} and upper(ajob)!=upper('admin')
+	</select>
+	
+	<!-- 사원리스트 숫자 -->
+	<select id="cnt" resultType="int">
+	   select count(*) from admin where upper(ajob)!=upper('admin')
+	</select>
+	
+	<!-- 사원의 정보와 작업리스트를 함께 출력 -->
+	<select id="detail" parameterType="String" resultMap="avoV">
+	   select * from admin a, worklist w where a.aid=#{aid} and a.aid=w.aid(+)
+	</select>
+	
+	<!-- 사원 상태변화 foreach문으로 여러명 실행 대기로 -->
+	<update id="addWorkList" parameterType="java.util.List">
+	update admin set astate=2
+	<foreach collection="list" item="e" open="where aid in(" separator="," close=")" >
+	    #{e.aid}
+	</foreach>
+	</update>
+	
+	<!-- 사원 상태변화 foreach문으로 여러명 실행 프리상태로 -->
+	<update id="delWorklist" parameterType="java.util.List">
+	update admin set astate=1
+	<foreach collection="list" item="e" open="where aid in(" separator="," close=")" >
+	    #{e.aid}
+	</foreach>
+	</update>
+	
+	<!-- 사원의 업무 확인 -->
+	<update id="confirm" parameterType="String">
+	    update admin set astate=3 where aid=#{aid}
+	</update>
+	
+	<!-- 사원의 업무 거부 -->
+	<update id="deny" parameterType="String">
+	    update admin set astate=1 where aid=#{aid}
+	</update>
+	
+	<!-- 사원의 업무 취소 -->
+	<update id="cancel" parameterType="String">
+	    update admin set astate=2 where aid=#{aid}
+	</update>
+	
+	<!-- 사원의 업무 완료 -->
+	<update id="complete" parameterType="String">
+	    update admin set astate=1 where aid=#{aid}
+	</update>
+
+	<select id="alllist" resultType="avo">
+		select * from admin
+	</select>
+
+</mapper>
